@@ -1,5 +1,5 @@
 {
-  "name": "weblog_serve",
+  "name": "weblog-serve",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
