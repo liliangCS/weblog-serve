@@ -4,6 +4,7 @@ const initApp = require("./middleware/initApp")
 const registerRouter = require("./router")
 
 const app = new Koa()
+
 // app初始化配置
 initApp(app)
 

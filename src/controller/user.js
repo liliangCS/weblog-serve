@@ -1,4 +1,6 @@
 const UserModel = require("../model/user")
+const { createToken } = require("../utils/token")
+const { encrypt } = require("../utils/md5")
 
 class UserController {
   /**
@@ -21,6 +23,33 @@ class UserController {
     const users = await UserModel.getUserByNickname(nickname)
     ctx.body = { users: users, errorCode: 0 }
   }
+  // 用户登录
+  static async login(ctx, next) {
+    // 1、用户名和密码是否为空
+    const { username, password } = ctx.request.body
+    if (!username || !password) {
+      ctx.throw(400, "用户名或密码不能为空")
+    }
+    // 2、用户是否存在
+    const users = await UserModel.getUserByUsername(username)
+    if (users.length === 0) {
+      ctx.throw(403, "用户不存在")
+    }
+    // 3、密码是否正确
+    const user = users[0]
+    if (encrypt(password) !== user.password) {
+      ctx.throw(403, "密码错误")
+    }
+    // 4、颁发token
+    const userInfo = { id: user.id, username: user.username }
+    const token = createToken(userInfo)
+    ctx.body = {
+      errorCode: 0,
+      msg: "登录成功",
+      userInfo,
+      token
+    }
+  }
 
   /**
    * --------------------增--------------------
@@ -28,11 +57,17 @@ class UserController {
   // 注册用户
   static async addNewUser(ctx, next) {
     const { username, password } = ctx.request.body
-    const res = await UserModel.addNewUser(username, password)
-    if (res.affectedRows) {
+    // 1、用户是否存在
+    const users = await UserModel.getUserByUsername(username)
+    if (users.length !== 0) {
+      ctx.throw(403, "用户名已被注册")
+    }
+    // 2、用户不存在，注册用户
+    try {
+      await UserModel.addNewUser(username, encrypt(password))
       ctx.body = { msg: "注册成功", errorCode: 0 }
-    } else {
-      ctx.body = { msg: "注册失败", errorCode: 1 }
+    } catch (error) {
+      ctx.throw(500, error.message)
     }
   }
 
@@ -42,11 +77,11 @@ class UserController {
   // 注销用户
   static async removeUser(ctx, next) {
     const { userId } = ctx.request.params
-    const res = await UserModel.removeUser(userId)
-    if (res.affectedRows) {
+    try {
+      await UserModel.removeUser(userId)
       ctx.body = { msg: "注销成功", errorCode: 0 }
-    } else {
-      ctx.body = { msg: "注销失败", errorCode: 1 }
+    } catch (error) {
+      ctx.throw(500, error.message)
     }
   }
 
@@ -57,29 +92,22 @@ class UserController {
   static async updatePassword(ctx, next) {
     const { userId } = ctx.request.params
     const { password } = ctx.request.body
-    const res = await UserModel.updatePassword(userId, password)
-    if (res.affectedRows) {
+    try {
+      await UserModel.updatePassword(userId, password)
       ctx.body = { msg: "修改成功", errorCode: 0 }
-    } else {
-      ctx.body = { msg: "修改失败", errorCode: 1 }
+    } catch (error) {
+      ctx.throw(500, error.message)
     }
   }
   // 修改用户信息
   static async updateUserInfo(ctx, next) {
     const { userId } = ctx.request.params
     const { nickname, description, email, link_github, link_avatar } = ctx.request.body
-    const res = await UserModel.updateUserInfo(
-      userId,
-      nickname,
-      description,
-      email,
-      link_github,
-      link_avatar
-    )
-    if (res.affectedRows) {
+    try {
+      await UserModel.updateUserInfo(userId, nickname, description, email, link_github, link_avatar)
       ctx.body = { msg: "修改成功", errorCode: 0 }
-    } else {
-      ctx.body = { msg: "修改失败", errorCode: 1 }
+    } catch (error) {
+      ctx.throw(500, error.message)
     }
   }
 }

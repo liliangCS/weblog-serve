@@ -25,7 +25,12 @@ class UserModel {
     const [res] = await connectPool.execute(statement, [nickname])
     return res
   }
-
+  // 根据username查询用户
+  static async getUserByUsername(username) {
+    const statement = "select id, username, password from user where username = ?;"
+    const [res] = await connectPool.execute(statement, [username])
+    return res
+  }
   /**
    * --------------------增--------------------
    */
