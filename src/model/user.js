@@ -12,10 +12,10 @@ class UserModel {
     return res
   }
   // 根据id查询用户
-  static async getUserById(userId) {
+  static async getUserById(user_id) {
     const statement =
       "select id, username, nickname, description, email, link_github, link_avatar from user where id = ?;"
-    const [res] = await connectPool.execute(statement, [userId])
+    const [res] = await connectPool.execute(statement, [user_id])
     return res
   }
   // 根据nickname查询用户
@@ -45,9 +45,9 @@ class UserModel {
    * --------------------删--------------------
    */
   // 注销用户
-  static async removeUser(userId) {
+  static async removeUser(user_id) {
     const statement = "delete from user where id = ?;"
-    const [res] = await connectPool.execute(statement, [userId])
+    const [res] = await connectPool.execute(statement, [user_id])
     return res
   }
 
@@ -55,13 +55,13 @@ class UserModel {
    * --------------------改--------------------
    */
   // 修改密码
-  static async updatePassword(userId, password) {
+  static async updatePassword(user_id, password) {
     const statement = "update user set password = ? where id = ?;"
-    const [res] = await connectPool.execute(statement, [password, userId])
+    const [res] = await connectPool.execute(statement, [password, user_id])
     return res
   }
   // 修改用户信息
-  static async updateUserInfo(userId, nickname, description, email, link_github, link_avatar) {
+  static async updateUserInfo(user_id, nickname, description, email, link_github, link_avatar) {
     const statement =
       "update user set nickname = ?, description = ?, email = ?, link_github = ?, link_avatar = ? where id = ?;"
     const [res] = await connectPool.execute(statement, [
@@ -70,7 +70,7 @@ class UserModel {
       email,
       link_github,
       link_avatar,
-      userId
+      user_id
     ])
     return res
   }

@@ -13,8 +13,8 @@ class UserController {
   }
   // 根据id查询用户
   static async getUserById(ctx, next) {
-    const { userId } = ctx.request.params
-    const users = await UserModel.getUserById(userId)
+    const { user_id } = ctx.request.params
+    const users = await UserModel.getUserById(user_id)
     ctx.body = { users: users, errorCode: 0 }
   }
   // 根据nickname查询用户
@@ -76,9 +76,9 @@ class UserController {
    */
   // 注销用户
   static async removeUser(ctx, next) {
-    const { userId } = ctx.request.params
+    const { user_id } = ctx.request.params
     try {
-      await UserModel.removeUser(userId)
+      await UserModel.removeUser(user_id)
       ctx.body = { msg: "注销成功", errorCode: 0 }
     } catch (error) {
       ctx.throw(500, error.message)
@@ -90,10 +90,10 @@ class UserController {
    */
   // 修改密码
   static async updatePassword(ctx, next) {
-    const { userId } = ctx.request.params
+    const { user_id } = ctx.request.params
     const { password } = ctx.request.body
     try {
-      await UserModel.updatePassword(userId, password)
+      await UserModel.updatePassword(user_id, password)
       ctx.body = { msg: "修改成功", errorCode: 0 }
     } catch (error) {
       ctx.throw(500, error.message)
@@ -101,10 +101,17 @@ class UserController {
   }
   // 修改用户信息
   static async updateUserInfo(ctx, next) {
-    const { userId } = ctx.request.params
+    const { user_id } = ctx.request.params
     const { nickname, description, email, link_github, link_avatar } = ctx.request.body
     try {
-      await UserModel.updateUserInfo(userId, nickname, description, email, link_github, link_avatar)
+      await UserModel.updateUserInfo(
+        user_id,
+        nickname,
+        description,
+        email,
+        link_github,
+        link_avatar
+      )
       ctx.body = { msg: "修改成功", errorCode: 0 }
     } catch (error) {
       ctx.throw(500, error.message)
